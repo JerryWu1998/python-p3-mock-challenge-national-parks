@@ -1,46 +1,36 @@
 class NationalPark:
-    def __init__(self, name=""):
-        if not isinstance(name, str):
-            raise Exception
-        self._name = name
+    def __init__(self, name):
+        self.name = name
         self._trips = []
         self._visitors = []
-        self._total_visits = 0
-        self._best_visitor = []
 
     def get_name(self):
         return self._name
 
     def set_name(self, new_name):
-        raise Exception("Cannot change the name of the NationalPark")
+        if isinstance(new_name, str) and not hasattr(self, "_name"):
+            self._name = new_name
+        else:
+            raise Exception
 
     name = property(get_name, set_name)
 
-    def trips(self, new_trip=None):
+    def trips(self):
         from classes.trip import Trip
 
-        if new_trip and isinstance(new_trip, Trip):
-            self._trips.append(new_trip)
-            self._total_visits += 1
-        return self._trips
+        return [t for t in Trip.all if t.national_park == self]
 
-    def visitors(self, new_visitor=None):
-        from classes.visitor import Visitor
-
-        if (
-            new_visitor
-            and isinstance(new_visitor, Visitor)
-            and new_visitor not in self._visitors
-        ):
-            self._visitors.append(new_visitor)
-            self._best_visitor.append(0)
-            self._best_visitor[self._visitors.index(new_visitor)] += 1
-        elif new_visitor in self._visitors:
-            self._best_visitor[self._visitors.index(new_visitor)] += 1
-        return self._visitors
+    def visitors(self):
+        return {t.visitor for t in self.trips()}
 
     def total_visits(self):
-        return self._total_visits
+        return len(self.trips())
 
     def best_visitor(self):
-        return self._visitors[self._best_visitor.index(max(self._best_visitor))]
+        visitors_score = {}
+        for t in self.trips():
+            if t.visitor not in visitors_score:
+                visitors_score[t.visitor] = 1
+            else:
+                visitors_score[t.visitor] += 1
+        return max(visitors_score, key=visitors_score.get)
