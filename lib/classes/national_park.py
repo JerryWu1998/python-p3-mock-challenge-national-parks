@@ -21,7 +21,7 @@ class NationalPark:
         return [t for t in Trip.all if t.national_park == self]
 
     def visitors(self):
-        return {t.visitor for t in self.trips()}
+        return list({t.visitor for t in self.trips()})
 
     def total_visits(self):
         return len(self.trips())
